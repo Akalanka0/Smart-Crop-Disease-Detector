@@ -56,5 +56,20 @@ models/
 *.pkl
 *.joblib
 
+# Environment and config files
+.env
+.env.local
+.env.*.local
+config.yaml
+config.yml
+settings.json
+
+# Logs and outputs
+logs/
+outputs/
+results/
+checkpoints/
+runs/
+
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
