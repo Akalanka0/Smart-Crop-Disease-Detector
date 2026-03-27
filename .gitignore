@@ -72,5 +72,8 @@ results/
 checkpoints/
 runs/
 
-# Ignore Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+# Ignore generated training artifacts (Keep the template clean)
+model_best.pth
+class_names.json
+training_history.json
+training_curves.png

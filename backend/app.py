@@ -57,29 +57,30 @@ NON_PLANT_PROMPTS = [
 ]
 # ══════════════════════════════════════════════════════════════════════════════
 
-# ── Load class names (required) ───────────────────────────────────────────────
-if not os.path.exists(CLASS_NAMES_PATH):
-    print("❌  class_names.json not found. Run train.py first.")
-    sys.exit(1)
+# ── Load class names ──────────────────────────────────────────────────────────
+CLASSES = []
+PLANT_PROMPTS = []
 
-with open(CLASS_NAMES_PATH, "r") as f:
-    CLASSES = json.load(f)
-
-# Dynamic CLIP Prompts: Focuses CLIP exactly on the crops the model knows about
-PLANT_PROMPTS = [
-    f"a photo of a {c.replace('_', ' ')} leaf" 
-    for c in CLASSES if c.lower() != "background"
-] + [
-    "a close-up of agricultural foliage",
-    "a photo of a diseased crop leaf",
-    "a photo of a healthy plant leaf"
-]
+if os.path.exists(CLASS_NAMES_PATH):
+    with open(CLASS_NAMES_PATH, "r") as f:
+        CLASSES = json.load(f)
+    
+    # Dynamic CLIP Prompts: Focuses CLIP exactly on the crops the model knows about
+    PLANT_PROMPTS = [
+        f"a photo of a {c.replace('_', ' ')} leaf" 
+        for c in CLASSES if c.lower() != "background"
+    ] + [
+        "a close-up of agricultural foliage",
+        "a photo of a diseased crop leaf",
+        "a photo of a healthy plant leaf"
+    ]
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 # ── Load Disease Model ────────────────────────────────────────────────────────
 def load_disease_model():
+    if not os.path.exists(MODEL_PATH): return None
     model = models.resnet50(weights=None)
     model.fc = nn.Sequential(
         nn.Dropout(0.4),
@@ -102,13 +103,17 @@ def load_clip_model():
         return None, None
 
 
-if not os.path.exists(MODEL_PATH):
-    print(f"❌  Model file '{MODEL_PATH}' not found. Run train.py first.")
-    sys.exit(1)
-
-DISEASE_MODEL = load_disease_model()
+DISEASE_MODEL = None
 CLIP_MODEL, CLIP_PREPROCESS = load_clip_model()
-print(f"✅  Backend ready  |  device: {DEVICE}  |  classes: {len(CLASSES)}")
+
+if os.path.exists(MODEL_PATH) and os.path.exists(CLASS_NAMES_PATH):
+    try:
+        DISEASE_MODEL = load_disease_model()
+        print(f"✅  Backend ready  |  device: {DEVICE}  |  classes: {len(CLASSES)}")
+    except Exception as e:
+        print(f"⚠️  Error loading model: {e}")
+else:
+    print("📢  [TEMPLATE MODE] Model or class names not found. Server is running, but /predict will require training.")
 
 # ── Image transform for Disease Classifier ───────────────────────────────────
 TRANSFORM = transforms.Compose([
@@ -139,8 +144,13 @@ def is_plant_image(pil_image) -> tuple[bool, float]:
     return plant_score >= CLIP_PLANT_THRESHOLD, plant_score
 
 
-# ── Prediction Logic ──────────────────────────────────────────────────────────
 def run_prediction(pil_image: Image.Image) -> dict:
+    if DISEASE_MODEL is None:
+        return {
+            "status": "error",
+            "error": "Model not found on server. Please run 'python train.py' on the server machine to generate the model and class metadata."
+        }
+    
     # 1. Plant Guard (CLIP)
     is_plant, plant_score = is_plant_image(pil_image)
     if not is_plant:

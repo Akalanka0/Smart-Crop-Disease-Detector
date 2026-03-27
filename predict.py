@@ -172,11 +172,13 @@ def classify(image_path: str, model_path: str = "model_best.pth") -> None:
 
     # Load disease model
     if not os.path.exists(model_path):
-        print(f"❌  Model file '{model_path}' not found. Run train.py first.")
+        print(f"\n❌  MODEL NOT FOUND: '{model_path}'")
+        print("─" * 55)
+        print("📥  It looks like you haven't trained your model yet!")
+        print("👉  To fix this, please run:")
+        print("    python train.py")
+        print("─" * 55)
         return
-
-    print("🧠 Loading disease classifier …")
-    disease_model = load_disease_model(model_path)
 
     # Run classifier
     result = predict_disease(pil_image, disease_model)
