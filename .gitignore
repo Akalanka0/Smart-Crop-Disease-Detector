@@ -45,7 +45,8 @@ ehthumbs.db
 Desktop.ini
 
 # Data, models, and outputs
-dataset/
+dataset/*
+!dataset/.gitkeep
 models/
 *.pt
 *.pth
