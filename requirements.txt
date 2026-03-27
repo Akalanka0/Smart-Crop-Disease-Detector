@@ -1,0 +1,8 @@
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=10.0.0
+matplotlib>=3.7.0
+flask>=3.0.0
+flask-cors>=4.0.0
+# Optional — enables CLIP plant/leaf guard in predict.py and backend/app.py
+git+https://github.com/openai/CLIP.git
