@@ -249,7 +249,6 @@ Trained on 10-class PlantVillage tomato subset · 224×224 · 30 epochs
 ## 📄 License
 
 MIT — free to use, modify, and distribute.  
-If this template helped your project, a ⭐ on GitHub is appreciated!
 
 ---
 
