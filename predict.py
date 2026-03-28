@@ -180,6 +180,9 @@ def classify(image_path: str, model_path: str = "model_best.pth") -> None:
         print("─" * 55)
         return
 
+    print("🧠 Loading disease classifier …")
+    disease_model = load_disease_model(model_path)
+
     # Run classifier
     result = predict_disease(pil_image, disease_model)
 

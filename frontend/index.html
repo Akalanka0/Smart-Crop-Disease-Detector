@@ -222,16 +222,11 @@
     <div class="logo-ring">🌿</div>
     <h1 id="app-title">Crop Disease Detector</h1>
     <p id="app-subtitle">AI-powered plant disease diagnosis · Upload a leaf photo for instant results</p>
-    <div class="stat-row" id="stat-row">
-      <div class="stat-chip"><span class="dot"></span> ResNet-18 Model</div>
-      <div class="stat-chip"><span class="dot"></span> <span id="chip-classes">Loading…</span></div>
-      <div class="stat-chip"><span class="dot"></span> <span id="chip-device">CPU</span></div>
-    </div>
   </header>
 
   <div class="upload-card" id="drop-zone" onclick="document.getElementById('file-input').click()">
     <span class="upload-icon">📸</span>
-    <h2>Drop your leaf photo here</h2>
+    <h2>Drop the photo of the plant leaf here.</h2>
     <p>Supports JPG, PNG, WEBP &nbsp;·&nbsp; Max 20 MB</p>
     <button class="browse-btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
       Browse Files
@@ -274,14 +269,11 @@ let diseaseInfo  = {};
 // ── Boot: fetch server info ─────────────────────────────────────────────────
 (async function boot() {
   spawnParticles();
-    try {
+  try {
     const health = await fetch(`${API_BASE}/health`).then(r => r.json());
-    document.getElementById("chip-classes").textContent =
-      `${health.classes} Disease Classes`;
-    document.getElementById("chip-device").textContent =
-      health.device === "cuda" ? "GPU Accelerated" : "CPU Inference";
+    console.log("Backend connected:", health);
   } catch (_) {
-    document.getElementById("chip-classes").textContent = "Server offline";
+    console.warn("Server offline");
   }
 })();
 
@@ -369,12 +361,12 @@ function renderResult(d) {
     const html = `
       <div class="result-hero invalid">
         <div class="result-badge">
-          <span class="badge-icon">🪑</span>
+          <span class="badge-icon">⚠️</span>
           <span class="badge-label">Invalid</span>
         </div>
         <div class="result-meta">
           <h2 style="color:#f85149">Non-Plant / Background Detected</h2>
-          <div class="tag-row"><span class="tag tag-sev-High">🚨 Access Denied</span></div>
+          <div class="tag-row"><span class="tag tag-sev-High">Access Denied</span></div>
           <p class="disease-desc" style="color:var(--text)">
             ${d.error || "This image doesn't look like an applicable crop."}
           </p>
